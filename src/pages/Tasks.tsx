@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { useQuery } from '../api/useQuery';
@@ -15,8 +14,8 @@ function TasksPage({ onOpen }) {
   const doingCount = TASKS.filter(t => t.status === "doing").length;
   const todayLeft = TASKS.filter(t => t.status === "doing" && t.required).length;
 
-  const daysLeft = (due) => {
-    const d = Math.ceil((new Date(due) - new Date("2026-05-29")) / 86400000);
+  const daysLeft = (due: string) => {
+    const d = Math.ceil((new Date(due).getTime() - new Date("2026-05-29").getTime()) / 86400000);
     return d;
   };
 

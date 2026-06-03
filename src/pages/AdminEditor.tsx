@@ -1,14 +1,14 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { CATEGORIES, COVER_COLORS } from '../data';
 import { useQuery } from '../api/useQuery';
 import * as api from '../api';
+import { Toggle } from './Settings';
 
 /* 神通大讲堂 — 管理端 · 课程编辑器（基本信息 / 章节管理 / 题库） */
 
 /* 复用控件 */
-function AField({ label, hint, children, full }) {
+function AField({ label, hint, children, full }: { label: string; hint?: string; children: React.ReactNode; full?: boolean }) {
   return (
     <label style={{ display: "block", gridColumn: full ? "1 / -1" : "auto" }}>
       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-700)", marginBottom: 7 }}>
@@ -20,11 +20,15 @@ function AField({ label, hint, children, full }) {
 }
 function AInput(props) { return <input {...props} className="set-input" />; }
 function ATextarea(props) { return <textarea {...props} className="set-input" style={{ height: "auto", padding: "12px 14px", lineHeight: 1.6, resize: "vertical", ...(props.style || {}) }} />; }
-function ASelect({ value, onChange, options }) {
+export function ASelect({ value, onChange, options }: { value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: Array<{ value: string; label: string } | string> }) {
   return (
     <div style={{ position: "relative" }}>
       <select value={value} onChange={onChange} className="set-input" style={{ appearance: "none", paddingRight: 38, cursor: "pointer" }}>
-        {options.map(o => <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>)}
+        {options.map((o) => {
+          const v = typeof o === 'string' ? o : o.value;
+          const l = typeof o === 'string' ? o : o.label;
+          return <option key={v} value={v}>{l}</option>;
+        })}
       </select>
       <Icon name="chevronD" style={{ width: 17, height: 17, position: "absolute", right: 13, top: 14, color: "var(--ink-400)", pointerEvents: "none" }} />
     </div>
@@ -202,10 +206,10 @@ function CourseEditor({ course, onBack, onToast }) {
                 <input value={q.q} onChange={e => editQ(q.id, { q: e.target.value })} className="set-input" style={{ marginBottom: 12, fontWeight: 600 }} placeholder="输入题干…" />
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {q.options.map((o, oi) => {
-                    const isAns = q.type === "multi" ? (q.answer || []).includes(oi) : q.answer === oi;
+                    const isAns = q.type === "multi" ? ((q.answer as number[]) || []).includes(oi) : q.answer === oi;
                     const toggleAns = () => {
                       if (q.type === "multi") {
-                        const a = q.answer || []; editQ(q.id, { answer: a.includes(oi) ? a.filter(x => x !== oi) : [...a, oi] });
+                        const a = (q.answer as number[]) || []; editQ(q.id, { answer: a.includes(oi) ? a.filter((x: number) => x !== oi) : [...a, oi] });
                       } else editQ(q.id, { answer: oi });
                     };
                     return (

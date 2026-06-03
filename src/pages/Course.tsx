@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { CATEGORIES, COVER_COLORS } from '../data';
@@ -250,7 +249,7 @@ function CoursePage({ course, onOpen, setRoute }) {
   );
 }
 
-function LoopStep({ done, active, label, sub, last }) {
+function LoopStep({ done, active, label, sub, last }: { done: boolean; active: boolean; label: string; sub: string; last?: boolean }) {
   return (
     <div style={{ display: "flex", gap: 11, position: "relative", paddingBottom: last ? 0 : 14 }}>
       {!last && <span style={{ position: "absolute", left: 10, top: 22, bottom: 0, width: 2, background: "var(--line)" }} />}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Icon } from './icons';
 import { getNav, type NavMode } from './nav';

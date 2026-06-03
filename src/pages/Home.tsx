@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { CATEGORIES } from '../data';
@@ -7,7 +6,7 @@ import { LoadingScreen, ErrorScreen, aggregate } from '../api/ui';
 import * as api from '../api';
 
 /* 神通大讲堂 — 首页 Dashboard */
-function StatBox({ icon, value, label, color }) {
+function StatBox({ icon, value, label }: { icon: string; value: string | number; label: string; color?: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
       <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,.13)",

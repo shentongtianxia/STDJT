@@ -1,23 +1,26 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { CATEGORIES, COVER_COLORS } from '../data';
 import { useQuery } from '../api/useQuery';
 import * as api from '../api';
+import { ASelect, CourseEditor } from './AdminEditor';
+import type { Course } from '../types';
 
 /* 神通大讲堂 — 轻量管理端 */
 
 /* 轻量 Toast */
-function useToast() {
-  const [toast, setToast] = useState(null);
-  const show = (msg, kind) => {
-    setToast({ msg, kind: kind || "info", id: Date.now() });
-    setTimeout(() => setToast(t => (t && t.msg === msg ? null : t)), 2400);
+interface ToastState { msg: string; kind: 'info' | 'success'; id: number }
+type ToastFn = (msg: string, kind?: 'info' | 'success') => void;
+function useToast(): [React.ReactNode, ToastFn] {
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const show: ToastFn = (msg, kind) => {
+    setToast({ msg, kind: kind || 'info', id: Date.now() });
+    setTimeout(() => setToast((t) => (t && t.msg === msg ? null : t)), 2400);
   };
   const node = toast ? (
     <div className="toast" key={toast.id}>
-      <span className="toast-ic" style={{ background: toast.kind === "success" ? "var(--green-500)" : "var(--brand-600)" }}>
-        <Icon name="check" style={{ width: 14, height: 14, color: "#fff" }} />
+      <span className="toast-ic" style={{ background: toast.kind === 'success' ? 'var(--green-500)' : 'var(--brand-600)' }}>
+        <Icon name="check" style={{ width: 14, height: 14, color: '#fff' }} />
       </span>
       {toast.msg}
     </div>
@@ -102,7 +105,8 @@ function AdminDash() {
 }
 
 function AdminCourses() {
-  const [view, setView] = useState(null);  // null=list | course对象 | "new"
+  const COURSES = useQuery(['courses'], api.listCourses).data || [];
+  const [view, setView] = useState<Course | 'new' | null>(null);  // null=list | course对象 | "new"
   const [toastNode, toast] = useToast();
 
   if (view) return (<>{toastNode}<CourseEditor course={view === "new" ? null : view} onBack={() => setView(null)} onToast={toast} /></>);
@@ -145,8 +149,9 @@ function AdminCourses() {
 }
 
 function AdminTasks() {
+  const COURSES = useQuery(['courses'], api.listCourses).data || [];
   const [toastNode, toast] = useToast();
-  const [courseId, setCourseId] = useState(COURSES[1].id);
+  const [courseId, setCourseId] = useState<string>(COURSES[1]?.id || '');
   const [target, setTarget] = useState("sales");
   const [due, setDue] = useState("2026-06-15");
   const [required, setRequired] = useState(true);

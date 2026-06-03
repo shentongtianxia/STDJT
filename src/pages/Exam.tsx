@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { useQuery } from '../api/useQuery';
@@ -53,8 +52,8 @@ function ExamPage() {
   );
 }
 
-function ExamRunner({ exam, onExit }) {
-  const qs = EXAM_QUESTIONS;
+function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass: number }; onExit: () => void }) {
+  const qs = useQuery(['exam-q', exam.id], () => api.listExamQuestions(exam.id)).data || [];
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -120,7 +119,7 @@ function ExamRunner({ exam, onExit }) {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                   {qq.options.map((o, oi) => {
-                    const right = qq.type === "multi" ? qq.answer.includes(oi) : qq.answer === oi;
+                    const right = qq.type === "multi" ? (qq.answer as number[]).includes(oi) : qq.answer === oi;
                     const chosen = qq.type === "multi" ? (answers[qq.id] || []).includes(oi) : answers[qq.id] === oi;
                     return (
                       <div key={oi} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 12px", borderRadius: 8, fontSize: 13.5,

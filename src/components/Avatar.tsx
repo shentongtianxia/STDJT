@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 
 const AV_COLORS = ['#3A5A86', '#3F6E60', '#7C6242', '#4E4D80', '#3A6470', '#5E5566'];

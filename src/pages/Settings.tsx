@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { useQuery } from '../api/useQuery';
@@ -6,7 +5,7 @@ import * as api from '../api';
 
 /* 神通大讲堂 — 个人设置 */
 
-function Toggle({ on, onChange }) {
+export function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
     <button className={"sw" + (on ? " on" : "")} onClick={() => onChange(!on)} type="button">
       <span className="sw-dot" />
@@ -57,7 +56,7 @@ function SettingsPage() {
                 <Field2 label="企业邮箱"><input className="set-input" defaultValue="lin.siqi@company.com" /></Field2>
                 <Field2 label="手机号"><input className="set-input" defaultValue="138****6021" /></Field2>
                 <Field2 label="个人简介" full>
-                  <textarea className="set-input" rows="3" defaultValue="市场部高级专员，专注品牌与活动运营，热爱学习与分享。" style={{ resize: "vertical", lineHeight: 1.6 }} />
+                  <textarea className="set-input" rows={3} defaultValue="市场部高级专员，专注品牌与活动运营，热爱学习与分享。" style={{ resize: "vertical", lineHeight: 1.6 }} />
                 </Field2>
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
@@ -128,7 +127,7 @@ function SettingsPage() {
   );
 }
 
-function Field2({ label, children, full }) {
+function Field2({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
   return (
     <div style={{ gridColumn: full ? "1 / -1" : "auto" }}>
       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink-700)", marginBottom: 7 }}>{label}</div>

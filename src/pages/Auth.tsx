@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { Icon } from '../components';
 import * as api from '../api';

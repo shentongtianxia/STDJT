@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, Fragment } from 'react';
 import { Icon } from './icons';
 import { Avatar } from './Avatar';
