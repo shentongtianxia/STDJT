@@ -1,14 +1,9 @@
 // @ts-nocheck
-import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import React from 'react';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { CATEGORIES } from '../data';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
 
 /* 神通大讲堂 — 首页 Dashboard */
 function StatBox({ icon, value, label, color }) {
@@ -27,6 +22,37 @@ function StatBox({ icon, value, label, color }) {
 }
 
 function HomePage({ onOpen, setRoute }) {
+  const courses = useQuery(['courses'], api.listCourses);
+  const tasks = useQuery(['tasks'], api.listTasks);
+  const me = useQuery(['me'], api.getMe);
+  const board = useQuery(['leaderboard'], api.getLeaderboard);
+  const badges = useQuery(['badges'], api.listMyBadges);
+
+  if (courses.loading || tasks.loading || me.loading || board.loading || badges.loading) {
+    return (
+      <div className="content fade-up">
+        <div className="card muted" style={{ padding: 80, textAlign: 'center' }}>加载中…</div>
+      </div>
+    );
+  }
+  const err = courses.error || tasks.error || me.error || board.error || badges.error;
+  if (err) {
+    return (
+      <div className="content fade-up">
+        <div className="card" style={{ padding: 60, textAlign: 'center' }}>
+          <div style={{ color: 'var(--orange-500)', marginBottom: 8 }}>加载失败：{err.message}</div>
+          <button className="btn btn-primary" onClick={() => location.reload()}>重试</button>
+        </div>
+      </div>
+    );
+  }
+
+  const COURSES = courses.data!;
+  const TASKS = tasks.data!;
+  const USER = me.data!;
+  const LEADERBOARD = board.data!;
+  const BADGES = badges.data!;
+
   const continueCourses = COURSES.filter(c => c.progress > 0 && c.progress < 100);
   const recommended = COURSES.filter(c => c.progress === 0).slice(0, 4);
   const myTasks = TASKS.filter(t => t.status !== "done").slice(0, 3);
