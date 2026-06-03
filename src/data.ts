@@ -1,6 +1,14 @@
-/* 神通大讲堂 — Mock data */
+/* 神通大讲堂 — Mock data
+ *
+ * 后续接后端时，把每个 export 替换为对应的 fetch 调用（或封装到
+ * src/api/ 下）即可；类型定义见 src/types.ts。
+ */
+import type {
+  Category, Course, KbCategory, DocFull, Task, Exam, Question, Post,
+  User, Badge, Cert, LeaderRow, Notification,
+} from './types';
 
-export const CATEGORIES = [
+export const CATEGORIES: Category[] = [
   { id: "all", name: "全部", icon: "grid" },
   { id: "onboard", name: "新人入职", icon: "rocket", color: "#2F6BF0" },
   { id: "product", name: "产品知识", icon: "box", color: "#15A05A" },
@@ -10,7 +18,7 @@ export const CATEGORIES = [
   { id: "skill", name: "通用技能", icon: "spark", color: "#0E9BAA" },
 ];
 
-export const COVER_COLORS = {
+export const COVER_COLORS: Record<string, string> = {
   onboard:    "linear-gradient(140deg,#34548A,#172a4d)",
   product:    "linear-gradient(140deg,#2F6155,#172a4d)",
   sales:      "linear-gradient(140deg,#7C6242,#172a4d)",
@@ -19,7 +27,7 @@ export const COVER_COLORS = {
   skill:      "linear-gradient(140deg,#356069,#172a4d)",
 };
 
-export const COURSES = [
+export const COURSES: Course[] = [
   { id: "c1", cat: "onboard", title: "新员工入职第一课：走进神通", type: "video", dur: "42分钟", lessons: 6, learners: 1284, rating: 4.9, instructor: "人力资源部 · 王敏", progress: 100, required: true,
     desc: "从公司发展历程、组织架构到企业文化与价值观，帮助新同学快速融入团队，了解我们是谁、为何而战。",
     chapters: [
@@ -89,7 +97,7 @@ export const COURSES = [
 ];
 
 /* ---- Knowledge base: directory tree + docs ---- */
-export const KB_TREE = [
+export const KB_TREE: KbCategory[] = [
   { id: "k-hr", name: "人事制度", icon: "users", docs: [
     { id: "d1", title: "员工考勤与请假管理办法", updated: "2026-04-18", author: "人力资源部", views: 2310, tag: "制度" },
     { id: "d2", title: "差旅与费用报销标准（2026）", updated: "2026-03-30", author: "财务部", views: 3102, tag: "制度" },
@@ -116,7 +124,7 @@ export const KB_TREE = [
   ]},
 ];
 
-export const DOC_CONTENT = {
+export const DOC_CONTENT: Record<string, DocFull> = {
   d1: { title: "员工考勤与请假管理办法", author: "人力资源部", updated: "2026-04-18", views: 2310, tag: "制度",
     body: [
       { type: "h", t: "一、总则" },
@@ -131,7 +139,7 @@ export const DOC_CONTENT = {
 };
 
 /* ---- Tasks ---- */
-export const TASKS = [
+export const TASKS: Task[] = [
   { id: "t1", courseId: "c2", title: "核心产品全景解析（2026版）", assignedBy: "产品部 · 李哲", due: "2026-06-05", progress: 45, status: "doing", required: true },
   { id: "t2", courseId: "c4", title: "信息安全与数据合规红线", assignedBy: "风控部", due: "2026-06-02", progress: 70, status: "doing", required: true },
   { id: "t3", courseId: "c5", title: "新晋管理者的第一个90天", assignedBy: "组织发展部 · 周立", due: "2026-06-20", progress: 20, status: "doing", required: false },
@@ -139,13 +147,13 @@ export const TASKS = [
 ];
 
 /* ---- Exams ---- */
-export const EXAMS = [
+export const EXAMS: Exam[] = [
   { id: "e1", title: "信息安全合规年度认证考试", related: "合规制度", questions: 10, minutes: 20, pass: 80, attempts: "2 次机会", status: "todo", due: "2026-06-02" },
   { id: "e2", title: "新员工入职知识结业测验", related: "新人入职", questions: 8, minutes: 15, pass: 70, attempts: "已通过", status: "passed", score: 92, due: "—" },
   { id: "e3", title: "产品认证 · 初级", related: "产品知识", questions: 15, minutes: 30, pass: 75, attempts: "不限", status: "todo", due: "2026-06-30" },
 ];
 
-export const EXAM_QUESTIONS = [
+export const EXAM_QUESTIONS: Question[] = [
   { id: "q1", type: "single", q: "关于公司机密数据的处理，下列哪种做法是正确的？",
     options: ["将客户名单导出到个人云盘备份","通过企业加密邮箱在内部授权同事间传输","在公共社交平台讨论项目细节","使用未经审批的第三方工具存储合同"], answer: 1 },
   { id: "q2", type: "single", q: "收到一封要求你点击链接并输入账号密码的「IT 系统升级」邮件，你应该？",
@@ -159,7 +167,7 @@ export const EXAM_QUESTIONS = [
 ];
 
 /* ---- Community ---- */
-export const POSTS = [
+export const POSTS: Post[] = [
   { id: "p1", cat: "经验分享", title: "做完《顾问式销售》后，我把 SPIN 用在了真实客户上", author: "陈思远", dept: "销售部", time: "2小时前", replies: 18, likes: 64, hot: true,
     excerpt: "上周跟进一个犹豫了很久的客户，试着用了课程里的 SPIN 四步提问，效果出乎意料……" },
   { id: "p2", cat: "提问求助", title: "新人求助：VPN 配置后还是连不上内网，求大佬", author: "刘晓彤", dept: "研发部", time: "5小时前", replies: 7, likes: 12,
@@ -170,13 +178,13 @@ export const POSTS = [
 ];
 
 /* ---- User / achievements ---- */
-export const USER = {
+export const USER: User = {
   name: "林思齐", dept: "市场部 · 高级专员", avatar: "林",
   points: 2860, level: 7, levelName: "学习达人", nextLevel: 3200,
   streak: 12, learnedHours: 38.5, coursesDone: 9, certs: 3,
 };
 
-export const BADGES = [
+export const BADGES: Badge[] = [
   { id: "b1", name: "学习先锋", desc: "累计学习满 30 小时", got: true, icon: "spark" },
   { id: "b2", name: "全勤之星", desc: "连续学习 7 天", got: true, icon: "flame" },
   { id: "b3", name: "知识达人", desc: "完成 5 门课程", got: true, icon: "book" },
@@ -185,13 +193,13 @@ export const BADGES = [
   { id: "b6", name: "管理新秀", desc: "完成管理力专题", got: false, icon: "users" },
 ];
 
-export const CERTS = [
+export const CERTS: Cert[] = [
   { id: "cert1", name: "新员工入职认证", date: "2026-05-15", org: "神通大讲堂 · 人力资源部" },
   { id: "cert2", name: "信息安全合规认证", date: "2026-01-20", org: "神通大讲堂 · 风控部" },
   { id: "cert3", name: "产品知识初级认证", date: "2025-11-08", org: "神通大讲堂 · 产品部" },
 ];
 
-export const LEADERBOARD = [
+export const LEADERBOARD: LeaderRow[] = [
   { rank: 1, name: "张文博", dept: "销售部", pts: 4120, me: false },
   { rank: 2, name: "王雅琪", dept: "产品部", pts: 3880, me: false },
   { rank: 3, name: "李慕白", dept: "研发部", pts: 3540, me: false },
@@ -217,7 +225,7 @@ export const ADMIN_STATS = {
 };
 
 /* ---- Notifications ---- */
-export const NOTIFICATIONS = [
+export const NOTIFICATIONS: Notification[] = [
   { id: "n1", type: "task", title: "新任务指派", text: "产品部为你指派了《核心产品全景解析（2026版）》，6月5日前完成", time: "10 分钟前", unread: true, icon: "task", color: "var(--brand-600)", bg: "var(--brand-50)" },
   { id: "n2", type: "exam", title: "考试即将截止", text: "《信息安全合规年度认证考试》将于 6月2日截止，请尽快完成", time: "2 小时前", unread: true, icon: "exam", color: "var(--orange-500)", bg: "var(--orange-50)" },
   { id: "n3", type: "badge", title: "恭喜获得新勋章", text: "你已解锁「知识达人」勋章，奖励 50 学习积分", time: "5 小时前", unread: true, icon: "trophy", color: "var(--gold-500)", bg: "var(--gold-50)" },
