@@ -14,6 +14,7 @@ npm run dev                  # http://localhost:5173
 |---|---|
 | `npm run dev` | 启动 Vite dev server（默认开启 MSW） |
 | `npm run build` | tsc 类型检查 + Vite 生产构建 |
+| `npm run build:offline` | 单文件离线构建 → `dist-offline/index.html`，双击在浏览器打开即可，无需后端、无需 server |
 | `npm run preview` | 预览 `dist/` |
 | `npm run lint` | ESLint |
 | `npm run format` | Prettier 写回 |

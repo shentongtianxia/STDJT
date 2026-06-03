@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   createBrowserRouter,
+  createHashRouter,
   Navigate,
   Outlet,
   useLocation,
@@ -150,7 +151,11 @@ function DocRoute() {
   return <DocReader doc={q.data!} onBack={() => nav(-1)} />;
 }
 
-export const router = createBrowserRouter([
+const createRouter = import.meta.env.VITE_OFFLINE === 'true'
+  ? createHashRouter
+  : createBrowserRouter;
+
+export const router = createRouter([
   { path: '/login', element: <LoginRoute /> },
   {
     element: <RequireAuth />,

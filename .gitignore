@@ -8,3 +8,4 @@ dist
 *.tsbuildinfo
 .tsbuild
 coverage
+dist-offline
