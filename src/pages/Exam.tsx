@@ -55,8 +55,25 @@ function ExamPage() {
 function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass: number }; onExit: () => void }) {
   const qs = useQuery(['exam-q', exam.id], () => api.listExamQuestions(exam.id)).data || [];
   const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<Record<string, number | number[]>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverResult, setServerResult] = useState<api.ExamResult | null>(null);
+  const [submitErr, setSubmitErr] = useState<string | null>(null);
+
+  const submit = async () => {
+    setSubmitting(true);
+    setSubmitErr(null);
+    try {
+      const r = await api.submitExam(exam.id, { answers });
+      setServerResult(r);
+      setSubmitted(true);
+    } catch (e) {
+      setSubmitErr(e instanceof Error ? e.message : '提交失败');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const q = qs[idx];
   const cur = answers[q.id];
@@ -78,8 +95,13 @@ function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass:
     if (qq.type === "multi") return Array.isArray(a) && a.length === qq.answer.length && qq.answer.every(x => a.includes(x));
     return a === qq.answer;
   };
-  const score = Math.round(qs.filter(isCorrect).length / qs.length * 100);
-  const answeredCount = qs.filter(qq => answers[qq.id] !== undefined && (qq.type !== "multi" || answers[qq.id].length)).length;
+  const localScore = Math.round(qs.filter(isCorrect).length / qs.length * 100);
+  const score = serverResult ? serverResult.score : localScore;
+  const answeredCount = qs.filter(qq => {
+    const a = answers[qq.id];
+    if (a === undefined) return false;
+    return qq.type !== 'multi' || (Array.isArray(a) && a.length > 0);
+  }).length;
 
   if (submitted) {
     const passed = score >= exam.pass;
@@ -102,7 +124,7 @@ function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass:
           </div>}
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 26 }}>
             <button className="btn btn-ghost" onClick={onExit}>返回考试列表</button>
-            {!passed && <button className="btn btn-primary" onClick={() => { setSubmitted(false); setIdx(0); setAnswers({}); }}>重新考试</button>}
+            {!passed && <button className="btn btn-primary" onClick={() => { setSubmitted(false); setIdx(0); setAnswers({}); setServerResult(null); }}>重新考试</button>}
           </div>
         </div>
 
@@ -120,7 +142,7 @@ function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass:
                 <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                   {qq.options.map((o, oi) => {
                     const right = qq.type === "multi" ? (qq.answer as number[]).includes(oi) : qq.answer === oi;
-                    const chosen = qq.type === "multi" ? (answers[qq.id] || []).includes(oi) : answers[qq.id] === oi;
+                    const chosen = qq.type === "multi" ? ((answers[qq.id] as number[]) || []).includes(oi) : answers[qq.id] === oi;
                     return (
                       <div key={oi} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 12px", borderRadius: 8, fontSize: 13.5,
                         background: right ? "var(--green-50)" : chosen ? "var(--red-50)" : "transparent",
@@ -156,7 +178,8 @@ function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass:
       {/* progress dots */}
       <div style={{ display: "flex", gap: 7, marginBottom: 20, flexWrap: "wrap" }}>
         {qs.map((qq, i) => {
-          const done = answers[qq.id] !== undefined && (qq.type !== "multi" || answers[qq.id].length);
+          const a = answers[qq.id];
+          const done = a !== undefined && (qq.type !== 'multi' || (Array.isArray(a) && a.length > 0));
           return (
             <button key={i} onClick={() => setIdx(i)}
               style={{ width: 34, height: 34, borderRadius: 9, fontSize: 13, fontWeight: 600,
@@ -196,7 +219,10 @@ function ExamRunner({ exam, onExit }: { exam: { id: string; title: string; pass:
         <span style={{ marginLeft: "auto", marginRight: 14, fontSize: 13, color: "var(--ink-500)" }}>已答 {answeredCount} / {qs.length}</span>
         {idx < qs.length - 1
           ? <button className="btn btn-primary" onClick={() => setIdx(idx + 1)}>下一题</button>
-          : <button className="btn btn-primary" onClick={() => setSubmitted(true)} disabled={answeredCount < qs.length} style={{ opacity: answeredCount < qs.length ? .5 : 1 }}>提交试卷</button>}
+          : <>
+              {submitErr && <span style={{ color: 'var(--orange-500)', fontSize: 12, marginRight: 10 }}>{submitErr}</span>}
+              <button className="btn btn-primary" onClick={submit} disabled={answeredCount < qs.length || submitting} style={{ opacity: answeredCount < qs.length || submitting ? .5 : 1 }}>{submitting ? '提交中…' : '提交试卷'}</button>
+            </>}
       </div>
     </div>
   );

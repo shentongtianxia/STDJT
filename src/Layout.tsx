@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar, TopBar, BottomNav } from './components';
 import { useAuth } from './auth';
@@ -68,15 +68,17 @@ export default function Layout() {
     window.scrollTo(0, 0);
   };
 
-  let crumb: string[] = CRUMBS[route] || ['首页'];
-  if (route === 'course') {
-    // 标题由 CoursePage 自己展示；面包屑只显示二级位置即可
-    crumb = ['学习中心', '课程'];
-  } else if (loc.pathname.startsWith('/docs/')) {
-    crumb = ['知识库', '文档'];
-  } else if (route === 'search') {
-    crumb = ['搜索', new URLSearchParams(loc.search).get('q') || '全部'];
-  }
+  const crumb: string[] = useMemo(() => {
+    if (route === 'course') return ['学习中心', '课程'];
+    if (loc.pathname.startsWith('/docs/')) return ['知识库', '文档'];
+    if (route === 'search') return ['搜索', new URLSearchParams(loc.search).get('q') || '全部'];
+    return CRUMBS[route] || ['首页'];
+  }, [route, loc.pathname, loc.search]);
+
+  useEffect(() => {
+    const tail = crumb[crumb.length - 1];
+    document.title = tail ? `${tail} · 神通大讲堂` : '神通大讲堂';
+  }, [crumb]);
 
   return (
     <div className={'app' + (mode === 'admin' ? ' admin-mode' : '')}>
@@ -97,8 +99,8 @@ export default function Layout() {
           setSearchValue={setSearchValue}
           onNav={setRoute}
           onSettings={() => setRoute('settings')}
-          onLogout={() => {
-            logout();
+          onLogout={async () => {
+            await logout();
             nav('/login');
           }}
         />

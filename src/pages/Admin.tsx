@@ -169,11 +169,21 @@ function AdminTasks() {
     { value: "manager", label: "管理岗 (42人)" },
   ];
 
-  const assign = () => {
-    const c = COURSES.find(x => x.id === courseId);
+  const [assigning, setAssigning] = useState(false);
+  const assign = async () => {
+    const c = COURSES.find((x: Course) => x.id === courseId);
     const to = TARGETS.find(t => t.value === target)?.label;
-    setAssignments([{ c: c.title, to, done: 0, due }, ...assignments]);
-    toast("已成功指派给「" + to + "」", "success");
+    if (!c) { toast('请选择课程'); return; }
+    setAssigning(true);
+    try {
+      await api.assignTask({ courseId, target, due, required });
+      setAssignments([{ c: c.title, to, done: 0, due }, ...assignments]);
+      toast("已成功指派给「" + to + "」", "success");
+    } catch (e) {
+      toast(e instanceof Error ? e.message : '指派失败');
+    } finally {
+      setAssigning(false);
+    }
   };
 
   return (
@@ -200,7 +210,7 @@ function AdminTasks() {
           </Field>
         </div>
         <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
-          <button className="btn btn-primary" onClick={assign}><Icon name="check" style={{ width: 16, height: 16 }} /> 确认指派</button>
+          <button className="btn btn-primary" disabled={assigning} onClick={assign}><Icon name="check" style={{ width: 16, height: 16 }} /> {assigning ? '指派中…' : '确认指派'}</button>
           <button className="btn btn-ghost" onClick={() => toast("已存为草稿")}>存为草稿</button>
         </div>
       </div>

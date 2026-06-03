@@ -1,7 +1,15 @@
 import React, { useState, Fragment } from 'react';
 import { Icon } from './icons';
 import { Avatar } from './Avatar';
-import { USER, NOTIFICATIONS } from '../data';
+import { useAuth } from '../auth';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
+import type { User, Notification as Notif } from '../types';
+
+const FALLBACK_USER: User = {
+  name: '', dept: '', avatar: '', points: 0, level: 0, levelName: '',
+  nextLevel: 0, streak: 0, learnedHours: 0, coursesDone: 0, certs: 0,
+};
 
 export function TopBar({
   crumb,
@@ -22,9 +30,13 @@ export function TopBar({
   onSettings?: () => void;
   onLogout?: () => void;
 }) {
+  const { user } = useAuth();
+  const USER = user || FALLBACK_USER;
+  const notifsQ = useQuery(['notifications'], api.listNotifications);
+  const [localNotifs, setLocalNotifs] = useState<Notif[] | null>(null);
+  const notifs = localNotifs ?? notifsQ.data ?? [];
   const [bellOpen, setBellOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [notifs, setNotifs] = useState(NOTIFICATIONS);
   const unread = notifs.filter((n) => n.unread).length;
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +46,14 @@ export function TopBar({
     setBellOpen(false);
     setMenuOpen(false);
   };
-  const markAllRead = () => setNotifs(notifs.map((n) => ({ ...n, unread: false })));
+  const markAllRead = () => {
+    setLocalNotifs(notifs.map((n) => ({ ...n, unread: false })));
+    api.markAllNotificationsRead().catch(() => {/* 退化为本地标记 */});
+  };
+  const markOneRead = (id: string) => {
+    setLocalNotifs(notifs.map((x) => (x.id === id ? { ...x, unread: false } : x)));
+    api.markNotificationRead(id).catch(() => {/* ditto */});
+  };
 
   const NAV_FOR: Record<string, string> = {
     task: 'tasks',
@@ -106,7 +125,7 @@ export function TopBar({
                       key={n.id}
                       className={'notif-item' + (n.unread ? ' unread' : '')}
                       onClick={() => {
-                        setNotifs(notifs.map((x) => (x.id === n.id ? { ...x, unread: false } : x)));
+                        markOneRead(n.id);
                         closeAll();
                         onNav && onNav(NAV_FOR[n.type] || 'home');
                       }}

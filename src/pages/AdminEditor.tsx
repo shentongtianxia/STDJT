@@ -37,10 +37,26 @@ export function ASelect({ value, onChange, options }: { value: string; onChange:
 
 const TYPE_OPTS = [{ value: "video", label: "视频" }, { value: "doc", label: "图文文档" }, { value: "quiz", label: "测验" }];
 
-function CourseEditor({ course, onBack, onToast }) {
+function CourseEditor({ course, onBack, onToast }: { course: any; onBack: () => void; onToast: (msg: string, kind?: 'info' | 'success') => void }) {
   const _qs = useQuery(['exam-q'], () => api.listExamQuestions('e1'));
   const EXAM_QUESTIONS = _qs.data || [];
   const isNew = !course;
+  const [saving, setSaving] = useState(false);
+  const save = async (publish: boolean) => {
+    if (!title.trim()) { onToast('请填写课程标题'); return; }
+    setSaving(true);
+    try {
+      const draft = { title, cat, instructor, desc, required, chapters, questions };
+      if (isNew) await api.createCourse(draft);
+      else await api.updateCourse(course.id, draft);
+      onToast(publish ? (isNew ? '课程已创建并发布' : '修改已保存') : '已存为草稿', 'success');
+      if (publish) onBack();
+    } catch (e) {
+      onToast(e instanceof Error ? e.message : '保存失败');
+    } finally {
+      setSaving(false);
+    }
+  };
   const [tab, setTab] = useState("basic");
   const [title, setTitle] = useState(course?.title || "");
   const [cat, setCat] = useState(course?.cat || "onboard");
@@ -78,9 +94,9 @@ function CourseEditor({ course, onBack, onToast }) {
           <div className="page-title" style={{ fontSize: 21 }}>{isNew ? "新建课程" : "编辑课程"}</div>
           <div className="page-desc" style={{ marginTop: 3 }}>{isNew ? "填写课程信息、添加章节与测验题目" : title}</div>
         </div>
-        <button className="btn btn-ghost" onClick={() => onToast("已存为草稿")}>存为草稿</button>
-        <button className="btn btn-primary" onClick={() => onToast(isNew ? "课程已创建并发布" : "修改已保存", "success")}>
-          <Icon name="check" style={{ width: 16, height: 16 }} /> {isNew ? "发布课程" : "保存修改"}
+        <button className="btn btn-ghost" disabled={saving} onClick={() => save(false)}>存为草稿</button>
+        <button className="btn btn-primary" disabled={saving} onClick={() => save(true)}>
+          <Icon name="check" style={{ width: 16, height: 16 }} /> {saving ? '保存中…' : (isNew ? '发布课程' : '保存修改')}
         </button>
       </div>
 

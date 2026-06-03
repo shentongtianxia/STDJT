@@ -73,8 +73,8 @@ function LoginRoute() {
   }
   return (
     <LoginPage
-      onLogin={() => {
-        login();
+      onLogin={(token, user) => {
+        login(token, user);
         const from = (loc.state as any)?.from?.pathname || '/';
         nav(from, { replace: true });
       }}

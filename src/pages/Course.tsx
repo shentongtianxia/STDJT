@@ -27,11 +27,13 @@ function CoursePage({ course, onOpen, setRoute }) {
   // 顺序解锁：第 0 节恒解锁；其后某节解锁需前一节已完成
   const isUnlocked = (i) => i === 0 || chapters[i - 1].done || chapters[i].done;
 
-  const markDone = (i) => {
+  const markDone = (i: number) => {
     if (chapters[i].done) { goNext(i); return; }
+    // 乐观更新：本地立即勾上；同时异步上报后端，失败不回滚（提示而已）
     const next = chapters.map((c, idx) => idx === i ? { ...c, done: true } : c);
     setChapters(next);
-    const nowAll = next.every(c => c.done);
+    api.markChapterDone(course.id, i).catch(() => {/* 后端失败暂忽略，下次刷新会重新拉 */});
+    const nowAll = next.every((c: any) => c.done);
     if (nowAll) { setTimeout(() => setCelebrate(true), 350); }
     else goNext(i);
   };

@@ -23,6 +23,8 @@ export default tseslint.config(
       // react-hooks v7 引入的 set-state-in-effect 规则对常见的 loading
       // 重置模式过于敏感，先关掉，等成熟了再开。
       'react-hooks/set-state-in-effect': 'off',
+      // purity 规则误报 Date.now() / Math.random() 在事件处理函数里的调用，先关掉。
+      'react-hooks/purity': 'off',
       // 此规则只是 fast-refresh 优化提示，本项目内的混合导出（路由表、
       // context provider 等）有意为之，关掉减少噪声。
       'react-refresh/only-export-components': 'off',

@@ -1,8 +1,9 @@
-/** HTTP client — 统一 base URL、JSON 解析、错误处理。
+/** HTTP client — 统一 base URL、JSON 解析、错误处理、Authorization 头。
  *
  * 接真后端时：改 BASE_URL，或在 .env 里配 VITE_API_BASE_URL。
  * MSW 在 dev 模式拦截这些请求并返回 mock 数据（见 src/mocks/）。
  */
+import { session, triggerUnauthorized } from '../session';
 
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -17,10 +18,20 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = session.getToken();
   const res = await fetch(BASE_URL + path, {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers || {}),
+    },
     ...init,
   });
+  if (res.status === 401) {
+    session.clear();
+    triggerUnauthorized();
+    throw new ApiError(401, '未登录或登录已过期');
+  }
   if (!res.ok) {
     let msg = res.statusText;
     try {

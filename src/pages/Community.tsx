@@ -6,12 +6,33 @@ import * as api from '../api';
 /* 神通大讲堂 — 内部社区 */
 
 function CommunityPage() {
-  const POSTS = useQuery(['posts'], api.listPosts).data || [];
+  const postsQ = useQuery(['posts'], api.listPosts);
+  const POSTS = postsQ.data || [];
   const LEADERBOARD = useQuery(['leaderboard'], api.getLeaderboard).data || [];
 
   const cats = ["全部", "经验分享", "课程讨论", "提问求助"];
   const [cat, setCat] = useState("全部");
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [newCat, setNewCat] = useState("经验分享");
+  const [newTitle, setNewTitle] = useState("");
+  const [newExcerpt, setNewExcerpt] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [postErr, setPostErr] = useState<string | null>(null);
   const list = POSTS.filter(p => cat === "全部" || p.cat === cat);
+
+  const publish = async () => {
+    if (!newTitle.trim()) { setPostErr("请输入标题"); return; }
+    setPosting(true); setPostErr(null);
+    try {
+      await api.createPost({ cat: newCat, title: newTitle, excerpt: newExcerpt });
+      setComposeOpen(false); setNewTitle(""); setNewExcerpt("");
+      postsQ.refetch();
+    } catch (e) {
+      setPostErr(e instanceof Error ? e.message : "发布失败");
+    } finally {
+      setPosting(false);
+    }
+  };
 
   return (
     <div className="content fade-up">
@@ -20,8 +41,28 @@ function CommunityPage() {
           <div className="page-title">内部社区</div>
           <div className="page-desc">分享学习心得、交流业务经验、互助答疑</div>
         </div>
-        <button className="btn btn-primary" style={{ marginLeft: "auto" }}><Icon name="plus" style={{ width: 17, height: 17 }} /> 发布帖子</button>
+        <button className="btn btn-primary" style={{ marginLeft: "auto" }} onClick={() => setComposeOpen(true)}><Icon name="plus" style={{ width: 17, height: 17 }} /> 发布帖子</button>
       </div>
+      {composeOpen && (
+        <div className="card" style={{ padding: 20, marginBottom: 18, border: "1px solid var(--brand-200)" }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 14 }}>
+            <h3 style={{ margin: 0, fontSize: 15.5, fontWeight: 700 }}>发布新帖</h3>
+            <button onClick={() => setComposeOpen(false)} className="icon-btn" style={{ marginLeft: "auto" }} aria-label="关闭"><Icon name="plus" style={{ transform: "rotate(45deg)" }} /></button>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+            {cats.filter(c => c !== "全部").map(c => (
+              <button key={c} onClick={() => setNewCat(c)} className={"tag" + (newCat === c ? "" : " gray")} style={{ cursor: "pointer" }}>{c}</button>
+            ))}
+          </div>
+          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="标题" className="set-input" style={{ marginBottom: 10, fontWeight: 600 }} />
+          <textarea value={newExcerpt} onChange={e => setNewExcerpt(e.target.value)} placeholder="正文摘要…" className="set-input" rows={4} style={{ resize: "vertical", lineHeight: 1.6 }} />
+          {postErr && <div style={{ color: "var(--orange-500)", fontSize: 12.5, marginTop: 8 }}>{postErr}</div>}
+          <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+            <button className="btn btn-primary btn-sm" disabled={posting} onClick={publish}>{posting ? "发布中…" : "发布"}</button>
+            <button className="btn btn-ghost btn-sm" disabled={posting} onClick={() => setComposeOpen(false)}>取消</button>
+          </div>
+        </div>
+      )}
 
       <div className="l-main-rail" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 24, alignItems: "start" }}>
         <div>

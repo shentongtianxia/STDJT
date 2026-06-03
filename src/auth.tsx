@@ -1,33 +1,50 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import * as api from './api';
+import { session, onUnauthorized } from './session';
+import type { User } from './types';
 
 interface AuthCtx {
   authed: boolean;
-  login: () => void;
-  logout: () => void;
+  user: User | null;
+  login: (token: string, user: User) => void;
+  logout: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx | null>(null);
-const KEY = 'stdjt.authed';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authed, setAuthed] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(KEY) === '1';
-    } catch {
-      return false;
-    }
-  });
+  const [token, setToken] = useState<string | null>(() => session.getToken());
+  const [user, setUser] = useState<User | null>(() => session.getUser());
+
   useEffect(() => {
+    // http client 收到 401 时回调，统一清空 + 触发重渲染。
+    return onUnauthorized(() => {
+      setToken(null);
+      setUser(null);
+    });
+  }, []);
+
+  const login = useCallback((newToken: string, newUser: User) => {
+    session.setToken(newToken);
+    session.setUser(newUser);
+    setToken(newToken);
+    setUser(newUser);
+  }, []);
+
+  const logout = useCallback(async () => {
+    // 即使后端请求失败也保证本地登出。
     try {
-      authed ? localStorage.setItem(KEY, '1') : localStorage.removeItem(KEY);
+      await api.logout();
     } catch {
       /* ignore */
     }
-  }, [authed]);
+    session.clear();
+    setToken(null);
+    setUser(null);
+  }, []);
+
   return (
-    <Ctx.Provider value={{ authed, login: () => setAuthed(true), logout: () => setAuthed(false) }}>
-      {children}
-    </Ctx.Provider>
+    <Ctx.Provider value={{ authed: !!token, user, login, logout }}>{children}</Ctx.Provider>
   );
 }
 

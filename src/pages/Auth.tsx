@@ -2,10 +2,15 @@ import React, { useState } from 'react';
 import { Icon } from '../components';
 import * as api from '../api';
 import { ApiError } from '../api/client';
+import type { User } from '../types';
 
 /* 神通大讲堂 — 登录页 */
 
-function LoginPage({ onLogin }) {
+interface LoginPageProps {
+  onLogin: (token: string, user: User) => void;
+}
+
+function LoginPage({ onLogin }: LoginPageProps) {
   const [tab, setTab] = useState("account");  // account | sms
   const [account, setAccount] = useState("");
   const [pwd, setPwd] = useState("");
@@ -14,14 +19,14 @@ function LoginPage({ onLogin }) {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e) => {
+  const submit = async (e?: React.FormEvent) => {
     e && e.preventDefault();
     if (!account.trim()) { setErr("请输入工号 / 企业邮箱"); return; }
     if (tab === "account" && !pwd) { setErr("请输入密码"); return; }
     setErr(""); setBusy(true);
     try {
-      await api.login({ account, pwd });
-      onLogin();
+      const res = await api.login({ account, pwd });
+      onLogin(res.token, res.user);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : "登录失败，请稍后重试");
     } finally {
@@ -118,7 +123,7 @@ function LoginPage({ onLogin }) {
           <div className="auth-sso">
             <span>或使用</span>
           </div>
-          <button type="button" className="auth-sso-btn" onClick={onLogin}>
+          <button type="button" className="auth-sso-btn" onClick={() => submit()}>
             <Icon name="grid" style={{ width: 18, height: 18 }} /> 企业微信 / 钉钉 一键登录
           </button>
 
