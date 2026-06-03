@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>神通大讲堂</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <template id="__bundler_thumbnail" data-bg-color="#0B1A36">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#0B1A36"/>
+      <rect x="430" y="250" width="340" height="340" rx="86" fill="url(#g)"/>
+      <path d="M520 470c-26 26-34 86-34 86s60-8 86-34" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M556 452c86-17 138-86 155-189-103 17-172 69-189 155z" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="650" cy="382" r="26" fill="none" stroke="#fff" stroke-width="20"/>
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#2F6BF0"/>
+          <stop offset="1" stop-color="#1A49B0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </template>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="pages-auth.jsx"></script>
+  <script type="text/babel" src="pages-home.jsx"></script>
+  <script type="text/babel" src="pages-learn.jsx"></script>
+  <script type="text/babel" src="pages-kb.jsx"></script>
+  <script type="text/babel" src="pages-tasks.jsx"></script>
+  <script type="text/babel" src="pages-exam.jsx"></script>
+  <script type="text/babel" src="pages-me.jsx"></script>
+  <script type="text/babel" src="pages-community.jsx"></script>
+  <script type="text/babel" src="pages-search.jsx"></script>
+  <script type="text/babel" src="pages-settings.jsx"></script>
+  <script type="text/babel" src="pages-admin.jsx"></script>
+  <script type="text/babel" src="pages-admin-editor.jsx"></script>
+  <script type="text/babel" src="pages-course.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
