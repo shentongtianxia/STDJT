@@ -1,14 +1,8 @@
 // @ts-nocheck
-import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import React, { useState } from 'react';
+import { Icon } from '../components';
+import * as api from '../api';
+import { ApiError } from '../api/client';
 
 /* 神通大讲堂 — 登录页 */
 
@@ -19,13 +13,21 @@ function LoginPage({ onLogin }) {
   const [showPwd, setShowPwd] = useState(false);
   const [remember, setRemember] = useState(true);
   const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e && e.preventDefault();
     if (!account.trim()) { setErr("请输入工号 / 企业邮箱"); return; }
     if (tab === "account" && !pwd) { setErr("请输入密码"); return; }
-    setErr("");
-    onLogin();
+    setErr(""); setBusy(true);
+    try {
+      await api.login({ account, pwd });
+      onLogin();
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : "登录失败，请稍后重试");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -112,7 +114,7 @@ function LoginPage({ onLogin }) {
             <button type="button" className="auth-link">忘记密码？</button>
           </div>
 
-          <button type="submit" className="btn btn-primary auth-submit">登录</button>
+          <button type="submit" className="btn btn-primary auth-submit" disabled={busy}>{busy ? "登录中…" : "登录"}</button>
 
           <div className="auth-sso">
             <span>或使用</span>

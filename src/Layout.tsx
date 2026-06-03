@@ -1,9 +1,8 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar, TopBar, BottomNav } from './components';
 import { useAuth } from './auth';
-import { COURSES, DOC_CONTENT } from './data';
 
 const PATH_TO_ROUTE: Record<string, string> = {
   '/': 'home',
@@ -49,7 +48,6 @@ const CRUMBS: Record<string, string[]> = {
 export default function Layout() {
   const loc = useLocation();
   const nav = useNavigate();
-  const params = useParams();
   const { logout } = useAuth();
   const [navOpen, setNavOpen] = useState(false);
   const [searchValue, setSearchValue] = useState(
@@ -73,12 +71,10 @@ export default function Layout() {
 
   let crumb: string[] = CRUMBS[route] || ['首页'];
   if (route === 'course') {
-    const c = COURSES.find((x) => x.id === params.id);
-    crumb = ['学习中心', c?.title || '课程'];
+    // 标题由 CoursePage 自己展示；面包屑只显示二级位置即可
+    crumb = ['学习中心', '课程'];
   } else if (loc.pathname.startsWith('/docs/')) {
-    const docId = loc.pathname.split('/').pop();
-    const d = DOC_CONTENT[docId as string];
-    crumb = ['知识库', d?.title || '文档'];
+    crumb = ['知识库', '文档'];
   } else if (route === 'search') {
     crumb = ['搜索', new URLSearchParams(loc.search).get('q') || '全部'];
   }

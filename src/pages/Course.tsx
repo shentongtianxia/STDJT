@@ -1,18 +1,15 @@
 // @ts-nocheck
 import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { CATEGORIES, COVER_COLORS } from '../data';
+import { useQuery } from '../api/useQuery';
+import { LoadingScreen, ErrorScreen } from '../api/ui';
+import * as api from '../api';
 
 /* 神通大讲堂 — 课程学习页（播放器 + 章节 + 详情 + 激励闭环） */
 
 function CoursePage({ course, onOpen, setRoute }) {
+  const _courses = useQuery(['courses'], api.listCourses);
   // 本地章节完成态（驱动进度实时变化 + 顺序解锁）
   const [chapters, setChapters] = useState(() => course.chapters.map(c => ({ ...c })));
   const firstUndone = Math.max(0, chapters.findIndex(c => !c.done));
@@ -26,7 +23,7 @@ function CoursePage({ course, onOpen, setRoute }) {
   const total = chapters.length;
   const progress = Math.round(doneCount / total * 100);
   const allDone = doneCount === total;
-  const related = COURSES.filter(c => c.cat === course.cat && c.id !== course.id).slice(0, 3);
+  const related = (_courses.data || []).filter(c => c.cat === course.cat && c.id !== course.id).slice(0, 3);
 
   // 顺序解锁：第 0 节恒解锁；其后某节解锁需前一节已完成
   const isUnlocked = (i) => i === 0 || chapters[i - 1].done || chapters[i].done;

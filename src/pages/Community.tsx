@@ -1,18 +1,15 @@
 // @ts-nocheck
 import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
 
 /* 神通大讲堂 — 内部社区 */
 
 function CommunityPage() {
+  const POSTS = useQuery(['posts'], api.listPosts).data || [];
+  const LEADERBOARD = useQuery(['leaderboard'], api.getLeaderboard).data || [];
+
   const cats = ["全部", "经验分享", "课程讨论", "提问求助"];
   const [cat, setCat] = useState("全部");
   const list = POSTS.filter(p => cat === "全部" || p.cat === cat);

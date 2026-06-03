@@ -1,19 +1,17 @@
 // @ts-nocheck
 import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { DOC_CONTENT } from '../data';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
 
 /* 神通大讲堂 — 知识库（目录树 + 检索 + 阅读页） */
 
 const TAG_COLORS = { "制度": "red", "指南": "", "操作手册": "green", "FAQ": "gray", "手册": "green", "技术文档": "", "分析": "orange", "流程": "", "话术": "gold", "模板": "gray" };
 
 function KbPage() {
+  const KB_TREE = useQuery(['kb_tree'], api.listKbCategories).data || [];
+
   const allDocs = KB_TREE.flatMap(g => g.docs.map(d => ({ ...d, group: g.id, groupName: g.name })));
   const [activeGroup, setActiveGroup] = useState("all");
   const [q, setQ] = useState("");

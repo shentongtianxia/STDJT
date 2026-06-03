@@ -1,14 +1,9 @@
 // @ts-nocheck
 import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { CATEGORIES, COVER_COLORS } from '../data';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
 
 /* 神通大讲堂 — 管理端 · 课程编辑器（基本信息 / 章节管理 / 题库） */
 
@@ -39,6 +34,8 @@ function ASelect({ value, onChange, options }) {
 const TYPE_OPTS = [{ value: "video", label: "视频" }, { value: "doc", label: "图文文档" }, { value: "quiz", label: "测验" }];
 
 function CourseEditor({ course, onBack, onToast }) {
+  const _qs = useQuery(['exam-q'], () => api.listExamQuestions('e1'));
+  const EXAM_QUESTIONS = _qs.data || [];
   const isNew = !course;
   const [tab, setTab] = useState("basic");
   const [title, setTitle] = useState(course?.title || "");

@@ -3,6 +3,7 @@ import React from 'react';
 import { Icon, Avatar, Cover, CourseCard } from '../components';
 import { CATEGORIES } from '../data';
 import { useQuery } from '../api/useQuery';
+import { LoadingScreen, ErrorScreen, aggregate } from '../api/ui';
 import * as api from '../api';
 
 /* 神通大讲堂 — 首页 Dashboard */
@@ -28,24 +29,9 @@ function HomePage({ onOpen, setRoute }) {
   const board = useQuery(['leaderboard'], api.getLeaderboard);
   const badges = useQuery(['badges'], api.listMyBadges);
 
-  if (courses.loading || tasks.loading || me.loading || board.loading || badges.loading) {
-    return (
-      <div className="content fade-up">
-        <div className="card muted" style={{ padding: 80, textAlign: 'center' }}>加载中…</div>
-      </div>
-    );
-  }
-  const err = courses.error || tasks.error || me.error || board.error || badges.error;
-  if (err) {
-    return (
-      <div className="content fade-up">
-        <div className="card" style={{ padding: 60, textAlign: 'center' }}>
-          <div style={{ color: 'var(--orange-500)', marginBottom: 8 }}>加载失败：{err.message}</div>
-          <button className="btn btn-primary" onClick={() => location.reload()}>重试</button>
-        </div>
-      </div>
-    );
-  }
+  const { loading, error } = aggregate([courses, tasks, me, board, badges]);
+  if (loading) return <LoadingScreen />;
+  if (error) return <ErrorScreen err={error} />;
 
   const COURSES = courses.data!;
   const TASKS = tasks.data!;

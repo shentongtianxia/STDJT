@@ -23,7 +23,9 @@ import { SearchPage } from './pages/Search';
 import { SettingsPage } from './pages/Settings';
 import { AdminDash, AdminCourses, AdminTasks, AdminPeople } from './pages/Admin';
 import { CoursePage } from './pages/Course';
-import { COURSES, DOC_CONTENT } from './data';
+import * as api from './api';
+import { useQuery } from './api/useQuery';
+import { LoadingScreen, ErrorScreen } from './api/ui';
 
 /** Common navigation callbacks plumbed into existing page components. */
 function useNav() {
@@ -128,15 +130,25 @@ function SettingsRoute() {
 function CourseRoute() {
   const { id } = useParams();
   const { onOpen, setRoute } = useNav();
-  const course = COURSES.find((c) => c.id === id);
-  if (!course) return <Navigate to="/learn" replace />;
-  return <CoursePage course={course} onOpen={onOpen} setRoute={setRoute} />;
+  const q = useQuery(['course', id], () => api.getCourse(id as string));
+  if (q.loading) return <LoadingScreen />;
+  if (q.error) {
+    // 404 → 退回学习中心
+    if ((q.error as any).status === 404) return <Navigate to="/learn" replace />;
+    return <ErrorScreen err={q.error} />;
+  }
+  return <CoursePage course={q.data!} onOpen={onOpen} setRoute={setRoute} />;
 }
 function DocRoute() {
   const { id } = useParams();
   const nav = useNavigate();
-  const doc = DOC_CONTENT[id as string] || resolveDoc({ id });
-  return <DocReader doc={doc} onBack={() => nav(-1)} />;
+  const q = useQuery(['doc', id], () => api.getDoc(id as string));
+  if (q.loading) return <LoadingScreen />;
+  if (q.error) {
+    if ((q.error as any).status === 404) return <Navigate to="/kb" replace />;
+    return <ErrorScreen err={q.error} />;
+  }
+  return <DocReader doc={q.data!} onBack={() => nav(-1)} />;
 }
 
 export const router = createBrowserRouter([

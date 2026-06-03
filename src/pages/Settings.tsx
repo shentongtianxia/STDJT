@@ -1,14 +1,8 @@
 // @ts-nocheck
 import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
 
 /* 神通大讲堂 — 个人设置 */
 
@@ -21,6 +15,8 @@ function Toggle({ on, onChange }) {
 }
 
 function SettingsPage() {
+  const USER = useQuery(['user'], api.getMe).data || { name: '', dept: '', avatar: '', points: 0, level: 0, levelName: '', nextLevel: 0, streak: 0, learnedHours: 0, coursesDone: 0, certs: 0 };
+
   const [tab, setTab] = useState("profile");
   const [notif, setNotif] = useState({ task: true, exam: true, reply: true, badge: true, weekly: false, marketing: false });
   const tabs = [["profile", "个人资料", "me"], ["security", "账号安全", "lock"], ["notify", "通知偏好", "bell"]];

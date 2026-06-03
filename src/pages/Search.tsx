@@ -1,18 +1,16 @@
 // @ts-nocheck
 import React, { useState, Fragment } from 'react';
-import {
-  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
-  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
-} from '../data';
-import {
-  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
-  getNav, BOTTOM_NAV,
-} from '../components';
-import { DocReader, resolveDoc, KbPage } from './Kb';
+import { Icon, Avatar, Cover, CourseCard } from '../components';
+import { CATEGORIES } from '../data';
+import { useQuery } from '../api/useQuery';
+import * as api from '../api';
 
 /* 神通大讲堂 — 全局搜索结果页 */
 
 function SearchPage({ query, onOpen, openDoc, setRoute }) {
+  const COURSES = useQuery(['courses'], api.listCourses).data || [];
+  const KB_TREE = useQuery(['kb_tree'], api.listKbCategories).data || [];
+
   const [scope, setScope] = useState("all");  // all | course | doc
   const q = (query || "").trim();
 
