@@ -1,10 +1,21 @@
+// @ts-nocheck
+import React, { useState, Fragment } from 'react';
+import {
+  CATEGORIES, COVER_COLORS, COURSES, KB_TREE, DOC_CONTENT, TASKS, EXAMS,
+  EXAM_QUESTIONS, POSTS, USER, BADGES, CERTS, LEADERBOARD, ADMIN_STATS, NOTIFICATIONS,
+} from '../data';
+import {
+  Icon, Avatar, Cover, CourseCard, Sidebar, TopBar, BottomNav,
+  getNav, BOTTOM_NAV,
+} from '../components';
+import { DocReader, resolveDoc, KbPage } from './Kb';
+
 /* 神通大讲堂 — 学习中心 */
-const { useState: useLearnState } = React;
 
 function LearnPage({ onOpen }) {
-  const [cat, setCat] = useLearnState("all");
-  const [sort, setSort] = useLearnState("hot");
-  const [onlyRequired, setOnlyRequired] = useLearnState(false);
+  const [cat, setCat] = useState("all");
+  const [sort, setSort] = useState("hot");
+  const [onlyRequired, setOnlyRequired] = useState(false);
 
   let list = COURSES.filter(c => cat === "all" || c.cat === cat);
   if (onlyRequired) list = list.filter(c => c.required);
@@ -57,10 +68,10 @@ function LearnPage({ onOpen }) {
         {list.map(c => <CourseCard key={c.id} course={c} onOpen={onOpen} />)}
       </div>
       {list.length === 0 && (
-        <div className="card" style={{ padding: 50, textAlign: "center" }} className="muted">该分类下暂无课程</div>
+        <div className="card muted" style={{ padding: 50, textAlign: "center" }}>该分类下暂无课程</div>
       )}
     </div>
   );
 }
 
-Object.assign(window, { LearnPage });
+export { LearnPage };
