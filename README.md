@@ -17,6 +17,9 @@ npm run dev                  # http://localhost:5173
 | `npm run preview` | 预览 `dist/` |
 | `npm run lint` | ESLint |
 | `npm run format` | Prettier 写回 |
+| `npm test` | 跑单测（Vitest + Testing Library + jsdom） |
+| `npm run test:watch` | 单测 watch 模式 |
+| `npm run test:coverage` | 单测 + 覆盖率报告（输出到 `coverage/`） |
 
 ## 目录结构
 
@@ -86,6 +89,14 @@ scripts/        # 一次性迁移脚本，留作回放
 - 退出登录：调 `api.logout` 同时清理本地
 - 全局 401：任何接口收到 401 会清理本地登录态并把用户带回 `/login`
 
+## 测试
+
+- `src/**/*.test.{ts,tsx}` 旁置在被测文件同目录
+- `src/test/setup.ts`：jsdom 环境、`@testing-library/jest-dom` matchers、每个用例间清 localStorage
+- 现有覆盖：`session`、`api/client`（含 401 行为）、`api/useQuery`、`AuthProvider`、`LoginPage`
+
+后续可加 Playwright e2e 跑主流程（登录 → 看课 → 提交考试）。
+
 ## CI
 
-`.github/workflows/ci.yml`：push 和 PR 都会跑 `npm ci && npm run lint && npm run build`，Node 22 + npm 缓存。
+`.github/workflows/ci.yml`：push 和 PR 都会跑 `npm ci && npm run lint && npm test && npm run build`，Node 22 + npm 缓存。
